@@ -26,8 +26,7 @@ public interface MyStream<T> {
     }
 
     static <T> MyStream<T> iterate(T seed, Function<T, T> f) {
-        // TODO
-        return null;
+        return () -> new Pair<T>(seed,of(f.apply(seed)));
     }
 
     default MyStream<T> filter(Predicate<? super T> p) {
@@ -58,13 +57,27 @@ public interface MyStream<T> {
     }
 
     default MyStream<T> dropWhile(Predicate<? super T> p) {
-        // TODO
-        return null;
+        return () -> {
+            Pair<T> pair = eval();
+            if (pair == null)
+                return null;
+            if (!p.test(pair.value))
+                return new Pair<T>(pair.value, pair.rest.filter(p));
+            else
+                return pair.rest.filter(p).eval();
+    };
     }
 
     default MyStream<T> takeWhile(Predicate<? super T> p) {
-        // TODO
-        return null;
+        return () -> {
+            Pair<T> pair = eval();
+            if (pair == null)
+                return null;
+            if (!p.test(pair.value))
+                return new Pair<T>(pair.value, pair.rest.filter(p));
+            else
+                return pair.rest.filter(p).eval();
+        };
     }
 
 }
